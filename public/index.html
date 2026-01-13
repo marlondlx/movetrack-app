@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoveTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📦 MoveTrack</h1>
+            <p>Gestão de Mudança Inteligente</p>
+        </header>
+
+        <section class="card">
+            <h2>Nova Caixa</h2>
+            <input type="text" id="boxName" placeholder="Nome (ex: Sala de Estar)">
+            <input type="text" id="boxDesc" placeholder="Descrição (ex: Livros e Cabos)">
+            <button onclick="createBox()">Criar e Gerar QR</button>
+            <div id="qr-result"></div>
+        </section>
+
+        <section class="card">
+            <h2>Novo Item</h2>
+            <select id="boxSelect"><option>Carregando...</option></select>
+            <input type="text" id="itemName" placeholder="Item (ex: Cafeteira)">
+            <input type="number" id="itemValue" placeholder="Valor Pago (R$)">
+            <label style="font-size: 0.9em; color: #666;">Data da Compra:</label>
+            <input type="date" id="itemDate">
+            <button onclick="addItem()">Salvar na Caixa</button>
+        </section>
+
+        <section class="card">
+            <h2>Conferência</h2>
+            
+            <button onclick="startScanner()" style="background-color: #10b981; margin-bottom: 15px;">📷 Ler QR Code (Câmera)</button>
+            
+            <div id="reader"></div>
+            
+            <p style="text-align: center; margin: 10px; color: #666;">--- OU ---</p>
+
+            <select id="boxSelectConf" onchange="loadItems(this.value)">
+                <option value="">Selecione uma caixa manualmente...</option>
+            </select>
+            
+            <div id="itemsList"></div>
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
