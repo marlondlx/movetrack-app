@@ -64,4 +64,24 @@ app.get('/api/containers/:id/items', (req, res) => {
     });
 });
 
+// --- NOVAS ROTAS PARA EDIÇÃO E REMOÇÃO ---
+
+// 1. Atualizar (Editar) uma Caixa
+app.put('/api/containers/:id', (req, res) => {
+    const { name, description } = req.body;
+    db.run(`UPDATE containers SET name = ?, description = ? WHERE id = ?`, 
+    [name, description, req.params.id], function(err) {
+        if (err) return res.status(400).json({ error: err.message });
+        res.json({ message: "Caixa atualizada com sucesso!" });
+    });
+});
+
+// 2. Deletar um Item
+app.delete('/api/items/:id', (req, res) => {
+    db.run(`DELETE FROM items WHERE id = ?`, req.params.id, function(err) {
+        if (err) return res.status(400).json({ error: err.message });
+        res.json({ message: "Item deletado!" });
+    });
+});
+
 app.listen(PORT, () => console.log(`🚀 MoveTrack rodando na porta ${PORT}`));
