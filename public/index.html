@@ -4,45 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MoveTrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 </head>
 <body>
+    
+    <div class="overlay"></div>
+
     <div class="container">
         <header>
-            <h1>📦 MoveTrack</h1>
-            <p>Gestão de Mudança Inteligente</p>
+            <div class="logo-area">
+                <h1>📦 MoveTrack</h1>
+                <p>Organize sua mudança sem estresse.</p>
+            </div>
         </header>
 
-        <section class="card">
-            <h2>Nova Caixa</h2>
+        <div class="hero-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/6021/6021824.png" alt="Logistics Icon">
+            <div>
+                <h3>Bem-vindo!</h3>
+                <p>Crie caixas, cole o QR Code e rastreie seus pertences.</p>
+            </div>
+        </div>
+
+        <section class="card glass">
+            <div class="card-header">
+                <span class="icon">🏷️</span>
+                <h2>Nova Caixa</h2>
+            </div>
             <input type="text" id="boxName" placeholder="Nome (ex: Sala de Estar)">
             <input type="text" id="boxDesc" placeholder="Descrição (ex: Livros e Cabos)">
-            <button onclick="createBox()">Criar e Gerar QR</button>
+            <button onclick="createBox()" class="btn-primary">Criar e Gerar QR</button>
             <div id="qr-result"></div>
         </section>
 
-        <section class="card">
-            <h2>Novo Item</h2>
+        <section class="card glass">
+            <div class="card-header">
+                <span class="icon">🧸</span>
+                <h2>Novo Item</h2>
+            </div>
             <select id="boxSelect"><option>Carregando...</option></select>
             <input type="text" id="itemName" placeholder="Item (ex: Cafeteira)">
             <input type="number" id="itemValue" placeholder="Valor Pago (R$)">
-            <label style="font-size: 0.9em; color: #666;">Data da Compra:</label>
+            <label class="label-date">Data da Compra:</label>
             <input type="date" id="itemDate">
-            <button onclick="addItem()">Salvar na Caixa</button>
+            <button onclick="addItem()" class="btn-secondary">Salvar na Caixa</button>
         </section>
 
-        <section class="card">
-            <h2>Conferência</h2>
+        <section class="card glass">
+            <div class="card-header">
+                <span class="icon">🔍</span>
+                <h2>Conferência</h2>
+            </div>
             
-            <button onclick="startScanner()" style="background-color: #10b981; margin-bottom: 15px;">📷 Ler QR Code (Câmera)</button>
-            
+            <button onclick="startScanner()" class="btn-camera">📷 Ler QR Code (Câmera)</button>
             <div id="reader"></div>
             
-            <p style="text-align: center; margin: 10px; color: #666;">--- OU ---</p>
+            <p class="separator">ou selecione manual</p>
 
             <select id="boxSelectConf" onchange="loadItems(this.value)">
-                <option value="">Selecione uma caixa manualmente...</option>
+                <option value="">Escolha a caixa...</option>
             </select>
             
             <div id="itemsList"></div>
