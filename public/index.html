@@ -41,6 +41,32 @@
             <button onclick="createBox()" class="btn-primary">Criar e Gerar QR</button>
             <div id="qr-result"></div>
         </section>
+        
+        <section class="card glass">
+            <div class="card-header">
+                <span class="icon">🖨️</span>
+                <h2>Minhas Etiquetas</h2>
+            </div>
+            
+            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Selecione uma caixa para ver o QR Code:</p>
+            
+            <select id="boxSelectPrint" onchange="showSavedQR(this.value)">
+                <option value="">Buscar caixa pelo nome...</option>
+            </select>
+
+            <div id="print-result" style="display:none; text-align:center; margin-top:15px;">
+                <div class="qr-display" style="background: white; padding: 15px; border-radius: 10px; display: inline-block;">
+                    <img id="qrImageDisplay" src="" style="width: 180px; display:block; margin: 0 auto;">
+                    <h3 id="qrNameDisplay" style="margin: 10px 0 5px; color: var(--primary);"></h3>
+                    <small>ID: <span id="qrIdDisplay"></span></small>
+                </div>
+                
+                <br>
+                <button id="btnDownload" class="btn-primary" style="background: #334155; margin-top: 15px; width: auto;">
+                    ⬇️ Baixar Imagem (.png)
+                </button>
+            </div>
+        </section>    
 
         <section class="card glass">
             <div class="card-header">

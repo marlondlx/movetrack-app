@@ -84,4 +84,40 @@ app.delete('/api/items/:id', (req, res) => {
     });
 });
 
+// Rota para recuperar o QR Code de uma caixa existente
+app.get('/api/containers/:id/qrcode', (req, res) => {
+    const id = req.params.id;
+    
+    db.get('SELECT * FROM containers WHERE id = ?', [id], async (err, row) => {
+        if (err || !row) return res.status(404).json({ error: "Caixa não encontrada" });
+
+        // Gera o QR Code novamente com os mesmos dados
+        const qrData = JSON.stringify({ type: 'box', id: row.id });
+        const qrCode = await QRCode.toDataURL(qrData);
+
+        res.json({ 
+            id: row.id,
+            name: row.name, 
+            qr_code: qrCode 
+        });
+    });
+});
+
+// Rota para Deletar uma Caixa inteira (e seus itens)
+app.delete('/api/containers/:id', (req, res) => {
+    const id = req.params.id;
+    
+    // O db.serialize garante que uma coisa acontece depois da outra
+    db.serialize(() => {
+        // 1. Apaga todos os itens dessa caixa
+        db.run('DELETE FROM items WHERE container_id = ?', [id]);
+        
+        // 2. Apaga a caixa
+        db.run('DELETE FROM containers WHERE id = ?', [id], function(err) {
+            if (err) return res.status(400).json({ error: err.message });
+            res.json({ message: "Caixa deletada com sucesso!" });
+        });
+    });
+});
+
 app.listen(PORT, () => console.log(`🚀 MoveTrack rodando na porta ${PORT}`));

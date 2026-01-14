@@ -6,26 +6,26 @@ async function loadBoxes() {
         const res = await fetch(`${API_URL}/containers`);
         const json = await res.json();
         
-        // Guarda a caixa selecionada atualmente (se houver)
-        const currentSelection = document.getElementById('boxSelectConf').value;
+        // Guarda seleção atual
+        const currentConf = document.getElementById('boxSelectConf').value;
 
         const options = '<option value="">Selecione...</option>' + 
             json.data.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
         
-        document.getElementById('boxSelect').innerHTML = options;
-        document.getElementById('boxSelectConf').innerHTML = options;
+        // Atualiza TODOS os selects (agora são 3)
+        document.getElementById('boxSelect').innerHTML = options;      // Cadastro de Item
+        document.getElementById('boxSelectConf').innerHTML = options;  // Conferência
+        document.getElementById('boxSelectPrint').innerHTML = options; // NOVO: Impressão
         
-        // Tenta manter a seleção anterior após recarregar
-        if(currentSelection) document.getElementById('boxSelectConf').value = currentSelection;
+        if(currentConf) document.getElementById('boxSelectConf').value = currentConf;
         
-    } catch (e) {
-        console.error("Erro ao carregar caixas", e);
-    }
+    } catch (e) { console.error("Erro ao carregar caixas", e); }
 }
 
 async function createBox() {
     const name = document.getElementById('boxName').value;
     const desc = document.getElementById('boxDesc').value;
+    
     if(!name) return alert('O nome da caixa é obrigatório!');
 
     const res = await fetch(`${API_URL}/containers`, {
@@ -35,14 +35,20 @@ async function createBox() {
     });
     const data = await res.json();
     
+    // --- AQUI ESTÁ A MUDANÇA ---
+    // Substitua a parte antiga por esta nova que tem o botão:
     document.getElementById('qr-result').innerHTML = `
         <div class="qr-display">
             <img src="${data.qr_code}">
             <p><strong>${data.name}</strong></p>
-            <small>ID: ${data.id}</small>
+            <small>Cole na caixa (ID: ${data.id})</small>
+            <br>
+            <button onclick="downloadImage('${data.qr_code}', 'Etiqueta-${data.name}')" 
+            style="margin-top:10px; padding:8px; font-size:0.9em; width:auto; background-color: #334155;">⬇️ Baixar</button>
         </div>`;
+    // ---------------------------
     
-    loadBoxes();
+    loadBoxes(); // Atualiza a lista
     document.getElementById('boxName').value = '';
     document.getElementById('boxDesc').value = '';
 }
@@ -91,8 +97,15 @@ async function loadItems(boxId) {
 
     let html = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid #ddd;">
-            <span style="color:#666; font-size:0.9em;">Editando: <strong>${boxName}</strong></span>
-            <button onclick="editBox(${boxId}, '${boxName}')" style="width:auto; padding:5px 10px; margin:0; font-size:0.8em; background:#f59e0b;">✏️ Editar Nome</button>
+            <span style="color:#666; font-size:0.9em;">Caixa: <strong>${boxName}</strong></span>
+            
+            <div style="display:flex; gap: 5px;">
+                <button onclick="editBox(${boxId}, '${boxName}')" 
+                style="width:auto; padding:6px 10px; margin:0; font-size:0.8em; background:#f59e0b;">✏️ Editar</button>
+                
+                <button onclick="deleteBox(${boxId})" 
+                style="width:auto; padding:6px 10px; margin:0; font-size:0.8em; background:#ef4444;" title="Apagar Caixa">🗑️ Caixa</button>
+            </div>
         </div>
     `;
 
@@ -178,5 +191,58 @@ function onScanSuccess(decodedText) {
         }
     } catch (e) { console.log("QR inválido"); }
 }
+// --- FUNÇÕES DE ETIQUETA E DOWNLOAD ---
+
+async function showSavedQR(boxId) {
+    if(!boxId) {
+        document.getElementById('print-result').style.display = 'none';
+        return;
+    }
+
+    // Busca os dados no backend
+    const res = await fetch(`${API_URL}/containers/${boxId}/qrcode`);
+    const data = await res.json();
+
+    if(data.error) return alert(data.error);
+
+    // Preenche a tela
+    const img = document.getElementById('qrImageDisplay');
+    img.src = data.qr_code;
+    
+    document.getElementById('qrNameDisplay').innerText = data.name;
+    document.getElementById('qrIdDisplay').innerText = data.id;
+    document.getElementById('print-result').style.display = 'block';
+
+    // Configura o botão de download
+    const btn = document.getElementById('btnDownload');
+    btn.onclick = () => downloadImage(data.qr_code, `Etiqueta-${data.name}`);
+}
+
+function downloadImage(dataUrl, fileName) {
+    // Cria um link invisível e clica nele para forçar o download
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = fileName + '.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+async function deleteBox(id) {
+    // Pergunta de segurança para não apagar sem querer
+    const confirmacao = confirm("PERIGO! ⚠️\n\nIsso vai apagar a CAIXA e TODOS OS ITENS dentro dela.\n\nTem certeza?");
+    
+    if(confirmacao) {
+        await fetch(`${API_URL}/containers/${id}`, { method: 'DELETE' });
+        
+        alert("Caixa apagada com sucesso!");
+        
+        // Limpa a tela
+        document.getElementById('itemsList').innerHTML = '';
+        
+        // Atualiza os menus para a caixa sumir da lista
+        loadBoxes();
+    }
+}
+
 
 loadBoxes();
